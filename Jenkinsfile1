@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         registry = "752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one"
-    
+    }
    
     stages {
         stage('Cloning Git') {
@@ -10,7 +10,7 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git']]])     
             }
         }
-  }
+  
    stage('Gradle Build') {
      steps {
        script {
