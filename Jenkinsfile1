@@ -5,13 +5,13 @@ pipeline {
     }
    
  
-       stage("Git Clone"){
-          steps {
-            script {
+   stage("Git Clone"){
+        steps {
+           script {
                git credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git'
            }
         }
-    }
+    
   
    stage('Gradle Build') {
      steps {
@@ -55,6 +55,6 @@ pipeline {
                 sh 'docker run -d -p 8096:5000 --rm --name mypythonContainer acct_id.dkr.ecr.us-east-2.amazonaws.com/your_ecr_repo:latest'
             }
       }
-    
+    }
    }
 }
