@@ -12,8 +12,8 @@ pipeline {
         }
   }
    stage('Gradle Build') {
-     steps{
-       script{
+     steps {
+       script {
 
          sh './gradlew build'
      }
@@ -22,7 +22,7 @@ pipeline {
    
     // Building Docker images
     stage('Building image') {
-      steps{
+      steps {
         script {
           dockerImage = docker.build registry
         }
@@ -31,7 +31,7 @@ pipeline {
    
     // Uploading Docker images into AWS ECR
     stage('Pushing to ECR') {
-     steps{  
+     steps {  
          script {
                 sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one'
                 sh 'docker push 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one:latest'
