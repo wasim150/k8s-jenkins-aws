@@ -10,14 +10,15 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git']]])     
             }
         }
-  
+  }
    stage('Gradle Build') {
      steps{
        script{
 
          sh './gradlew build'
-
-    }
+     }
+   }
+ }
    
     // Building Docker images
     stage('Building image') {
@@ -53,5 +54,5 @@ pipeline {
             }
       }
     }
-    }
+    
 }
