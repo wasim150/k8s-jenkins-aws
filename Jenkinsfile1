@@ -4,7 +4,7 @@ pipeline {
         registry = "752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one"
     }
    
-    stages {
+ 
        stage("Git Clone"){
 
         git credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git'
@@ -54,5 +54,5 @@ pipeline {
             }
       }
     }
-  }  
+   
 }
