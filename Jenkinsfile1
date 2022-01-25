@@ -5,10 +5,10 @@ pipeline {
     }
    
     stages {
-        stage('Cloning Git') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git']]])     
-            }
+       stage("Git Clone"){
+
+        git credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git'
+    }
         }
   
    stage('Gradle Build') {
