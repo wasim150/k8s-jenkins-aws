@@ -8,7 +8,7 @@ pipeline {
        stage("Git Clone"){
 
         git credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git'
-    }
+    
         }
   
    stage('Gradle Build') {
