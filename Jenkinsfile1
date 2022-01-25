@@ -36,8 +36,8 @@ pipeline {
      steps {  
          script {
                 sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one'
-                sh 'docker tag new-one:myimage 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one:myimage'
-                sh 'docker push 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one:myimage'
+                sh 'docker tag new-one:latest 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one:latest'
+                sh 'docker push 752399564322.dkr.ecr.us-east-1.amazonaws.com/new-one:latest'
          }
         }
       }
