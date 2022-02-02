@@ -36,7 +36,7 @@ pipeline {
      steps {  
          script {
                 sh 'aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one'
-                sh docker build -t new-one .
+                
                 sh 'docker push 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one'
          }
         }
