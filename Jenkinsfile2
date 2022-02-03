@@ -1,0 +1,75 @@
+
+pipeline {
+    agent any
+    environment {
+        registry = "494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one"
+    }
+   
+   stages {
+     stage("Git Clone"){
+        steps {
+           script {
+               git credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/Nadeem-13/k8s-jenkins-aws.git'
+           }
+        }
+    }
+  
+   stage('Gradle Build') {
+     steps {
+       script {
+
+         sh './gradlew build'
+     }
+   }
+ }
+   
+    // Building Docker images
+    stage('Building image') {
+      steps {
+        script {
+          dockerImage = docker.build registry
+        }
+      }
+    }
+   
+    // Uploading Docker images into AWS ECR
+    stage('Pushing to ECR') {
+     steps {  
+         script {
+                sh 'aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com'
+                
+                sh 'docker push 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one:latest'
+         }
+        }
+      }
+   
+         // Stopping Docker containers for cleaner Docker run
+     stage('stop previous containers') {
+         steps {
+            sh 'docker ps -f name=mypythonContainer -q | xargs --no-run-if-empty docker container stop'
+            sh 'docker container ls -a -fname=mypythonContainer -q | xargs -r docker container rm'
+         }
+       }
+      
+   
+    
+  
+
+  stage("SSH Into k8s Server") {
+        def remote = [:]
+        remote.name = 'K8S master'
+        remote.host = '54.249.0.22'
+        remote.user = 'admin'
+        remote.password = 'admin'
+        remote.allowAnyHosts = true
+
+    stage('Put k8s-spring-boot-deployment.yml onto k8smaster') {
+            sshPut remote: remote, from: 'k8s-spring-boot-deployment.yml', into: '.'
+        }
+
+    stage('Deploy spring boot') {
+          sshCommand remote: remote, command: "kubectl apply -f k8s-spring-boot-deployment.yml"
+        }
+    }
+ }
+}
