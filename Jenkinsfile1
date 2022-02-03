@@ -55,12 +55,13 @@ pipeline {
          script {
                 sh 'docker run -d -p 8096:5000 --rm --name myContainer 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one:latest'
             }
-      }
+        }
+    }
     stage("kubernetes deployment"){
                sh 'kubectl apply -f k8s-spring-boot-deployment.yml'
 }
     
     }
     
-   }
+   
 
