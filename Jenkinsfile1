@@ -41,6 +41,21 @@ pipeline {
          }
         }
       }
+      stage('Deploy App on k8s') {
+      steps {
+            sshagent(['k8s']) {
+            sh "scp -o StrictHostKeyChecking=no nodejsapp.yaml ubuntu@3.114.59.0 :/home/ubuntu"
+            script {
+                try{
+                    sh "ssh ubuntu@3.114.59.0  kubectl create -f ."
+                }catch(error){
+                    sh "ssh ubuntu@3.114.59.0  kubectl create -f ."
+            }
+}
+        }
+      
+    }
+    }
    
          // Stopping Docker containers for cleaner Docker run
      stage('stop previous containers') {
@@ -50,18 +65,7 @@ pipeline {
          }
        }
       
-    stage('Docker Run') {
-     steps{
-         script {
-                sh 'docker run -d -p 8096:5000 --rm --name myContainer1 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one:latest'
-            }
-        }
-    }
-    stage("kubernetes deployment") {
-     steps {
-               sh 'kubectl apply -f k8s-spring-boot-deployment.yml'   
-        }
-      }
+   
     }
     
    }
