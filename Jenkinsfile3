@@ -1,0 +1,47 @@
+node {
+
+    stage("Git Clone"){
+
+        git credentialsId: 'GIT_CREDENTIALS', url: 'https://github.com/rahulwagh/spring-boot-docker.git'
+    }
+
+     stage('Gradle Build') {
+
+       sh './gradlew build'
+
+    }
+
+    stage("Docker build"){
+        sh 'docker version'
+        sh 'docker build -t jhooq-docker-demo .'
+        sh 'docker image list'
+        sh 'docker tag jhooq-docker-demo rahulwagh17/jhooq-docker-demo:jhooq-docker-demo'
+    }
+
+    withCredentials([string(credentialsId: 'DOCKER_HUB_PASSWORD', variable: 'PASSWORD')]) {
+        sh 'docker login -u 007786 -p $PASSWORD'
+    }
+
+    stage("Push Image to Docker Hub"){
+        sh 'docker push  rahulwagh17/jhooq-docker-demo:jhooq-docker-demo'
+    }
+
+    stage("SSH Into k8s Server") {
+        def remote = [:]
+        remote.name = 'K8S master'
+        remote.host = '54.249.0.22'
+        remote.user = 'admin'
+        remote.password = 'admin'
+        remote.allowAnyHosts = true
+
+        stage('Put k8s-spring-boot-deployment.yml onto k8smaster') {
+            sshPut remote: remote, from: 'k8s-spring-boot-deployment.yml', into: '.'
+        }
+
+        stage('Deploy spring boot') {
+          sshCommand remote: remote, command: "kubectl apply -f k8s-spring-boot-deployment.yml"
+        }
+    }
+
+}
+ 
