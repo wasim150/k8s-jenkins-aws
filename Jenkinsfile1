@@ -57,7 +57,7 @@ pipeline {
             }
         }
     }
-    stage("kubernetes deployment"){
+    stage("kubernetes deployment") {
                sh 'kubectl apply -f k8s-spring-boot-deployment.yml'
 }
     
