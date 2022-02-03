@@ -23,7 +23,7 @@ node {
     }
 
     stage("Push Image to Docker Hub"){
-        sh 'docker push  rahulwagh17/jhooq-docker-demo:jhooq-docker-demo'
+        sh 'docker push  007786/jhooq-docker-demo:jhooq-docker-demo'
     }
 
     stage("SSH Into k8s Server") {
