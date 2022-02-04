@@ -1,0 +1,114 @@
+@Library('github.com/releaseworks/jenkinslib') _
+pipeline{
+  agent any
+ // @Library('github.com/releaseworks/jenkinslib') _
+  tools {
+     nodejs "Node"
+    // maven "Maven"
+     
+ }
+ 
+ environment {
+
+        ProjectName = "Lakeshore-uat"
+    
+        registry = "494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one"
+	}
+
+    stages {
+    
+    
+     stage('Git Clone'){
+        steps{
+           sh 'sleep 10'
+           cleanWs()
+          
+           sh 'npm cache clean --force' 
+		   echo "Cloning the ${ProjectName} project from GitLab"
+	       git url: 'https://github.com/Nishanth80/nodejs-app-mss.git', branch: 'master', credentialsId: '8888'
+		   echo "Code has been checked out into ${JENKINS_HOME}/workspace/${JOB_NAME} workspace..!"
+		}
+     }
+     stage('Tag Push') {
+      
+       steps{
+          withCredentials([usernamePassword(credentialsId: '8888', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+      sh('bash gittag.sh')
+      sh('git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Nishanth80/nodejs-app-mss.git --tags')
+	     }
+       }
+     }
+     stage("Build") {
+         steps{
+      //   nodejs(nodeJSInstallationName: 'nodejs15.2.1') {
+      
+              sh 'npm install'
+      //   }
+         }
+     } 
+     stage('ExecuteSonarQubeReport') {
+         steps{
+          // nodejs(nodeJSInstallationName: 'nodejs15.2.1') {
+        sh 'npm run sonar'
+         //  }
+         }
+      
+     } 
+     stage('UploadintoNexus') {
+         steps{
+      // nodejs(nodeJSInstallationName: 'nodejs15.2.1') {
+         // sh 'npm login --registry=http://3.94.53.202:8081/'
+        // sh 'npm adduser'
+          sh('bash version.sh')
+          sh 'npm publish --registry http://3.94.53.202:8081/repository/Nodejs/'
+         // sh 'aws eks --region us-west-2 update-kubeconfig --name eks'
+        //  sh 'kubectl appliy -f deploy.yaml'
+        //  sh 'kubectl appliy -f service.yaml'
+     // }
+         }
+         
+      
+       }	
+       
+       stage('Building image') {
+        steps {
+         script {
+           dockerImage = docker.build registry
+        }
+      }
+    }
+                                
+             
+       
+        stage('Pushing to ECR') {
+     steps {  
+         script {
+                sh 'aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com'
+                
+                sh 'docker push 494724829840.dkr.ecr.ap-northeast-1.amazonaws.com/new-one:latest'
+         }
+        }
+      }
+       
+       stage("EKS") {
+           steps{
+                withCredentials([[
+                $class: 'AmazonWebServicesCredentialsBinding',
+                credentialsId: "aws-key",
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                 secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+             ]]) {
+               
+               sh ' aws eks --region ap-northeast-1 update-kubeconfig --name new-one-cluster'
+               sh 'kubectl apply -f deploy.yaml'
+               sh 'kubectl apply -f service.yaml'
+             }
+            // sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+            // sh 'chmod u+x ./kubectl'  
+             
+    }
+    }
+ 
+      
+    }
+}
